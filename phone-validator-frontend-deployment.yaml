@@ -19,7 +19,7 @@ spec:
         app: phone-validator-frontend
     spec:
       containers:
-      - image: johnylima/phone-validator-frontend-2:4
+      - image: johnylima/phone-validator-frontend-2:5
         name: phone-validator-frontend
         resources:
           requests:
@@ -28,11 +28,10 @@ spec:
           limits:
             cpu: 250m
             memory: 256Mi
-        ports:
-        - containerPort: 8081
-        env:
-        - name: phone-validator
-          value: "phone-validator-backend"
+        bindings:
+          - port: 8081
+            containerPort: 8081
+            protocol: http
 
 status: {}
 ---
