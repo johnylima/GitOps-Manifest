@@ -1,16 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: phone-validator-frontend-deployment
+  namespace: phone-validator-frontend
   creationTimestamp: null
   labels:
     app: phone-validator-frontend
-  name: phone-validator-frontend
 spec:
   replicas: 3
   selector:
     matchLabels:
       app: phone-validator-frontend
-  strategy: {}
+  strategy: 
+    type: RollingUpdate
   template:
     metadata:
       creationTimestamp: null
@@ -28,7 +30,7 @@ spec:
             cpu: 250m
             memory: 256Mi
         ports:
-        - containerPort: 8081
+        - containerPort: 80
         env:
         - name: phone-validator
           value: "phone-validator-backend"
@@ -44,7 +46,7 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-  - port: 8081
+  - port: 80
     targetPort: 5000
   selector:
     app: phone-validator-frontend
