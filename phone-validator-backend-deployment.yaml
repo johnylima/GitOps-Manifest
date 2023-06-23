@@ -1,16 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: phone-validator-backend-deployment
+  namespace: phone-validator-backend
   creationTimestamp: null
   labels:
     app: phone-validator-backend
-  name: phone-validator-backend
 spec:
   replicas: 3
   selector:
     matchLabels:
       app: phone-validator-backend
-  strategy: {}
+  strategy: 
+      type: RollingUpdate
   template:
     metadata:
       creationTimestamp: null
