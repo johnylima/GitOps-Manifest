@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: phone-validator-frontend
-  namespace: phone-validator-frontend
   creationTimestamp: null
   labels:
     app: phone-validator-frontend
