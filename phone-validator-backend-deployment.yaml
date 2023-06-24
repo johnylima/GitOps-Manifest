@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: phone-validator-backend
-  namespace: phone-validator-backend
   labels:
     app: phone-validator-backend
 spec:
