@@ -46,7 +46,7 @@ spec:
   type: LoadBalancer
   ports:
   - name: backend
-    port: 1337
+    port: 8080
     protocol: TCP
     targetPort: 8080
   selector:
