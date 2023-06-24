@@ -45,9 +45,7 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-  - name: backend
-    port: 80
-    protocol: TCP
+  - port: 80
     targetPort: 8080
   selector:
     app: phone-validator-backend
