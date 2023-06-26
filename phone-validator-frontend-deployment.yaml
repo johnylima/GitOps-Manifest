@@ -9,6 +9,7 @@ spec:
   selector:
     matchLabels:
       app: phone-validator-frontend
+      product: phone-validator
   strategy: 
       type: RollingUpdate
       rollingUpdate:
@@ -18,28 +19,72 @@ spec:
     metadata:
       labels:
         app: phone-validator-frontend
+        product: phone-validator
     spec:
       containers:
-      - image: johnylima/phone-validator-frontend-2:8
+      - image: johnylima/phone-validator-frontend-2:15
         name: phone-validator-frontend
-        resources:
-          requests:
-            cpu: 100m
-            memory: 128Mi
-          limits:
-            cpu: 250m
-            memory: 256Mi
         ports:
             - name: frontend-port
               containerPort: 8081
               hostPort: 8081
+        readinessProbe:
+          initialDelaySeconds: 10
+          httpGet:
+            path: "/_healthz"
+            port: 8081
+            httpHeaders:
+            - name: "Cookie"
+              value: "phone_session-id=x-readiness-probe"
+        livenessProbe:
+            initialDelaySeconds: 10
+            httpGet:
+              path: "/_healthz"
+              port: 8081
+              httpHeaders:
+              - name: "Cookie"
+                value: "phone_session-id=x-liveness-probe"
+        env:
+        - name: PORT
+          value: "8081"            
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi
 
 status: {}
+
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
-  name: lb-phone-validator-frontend
+  name: phone-validator-frontend
+  labels:
+    app: phone-validator-frontend
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8081
+  - name: https
+    port: 443
+    protocol: TCP
+    targetPort: 8081
+  selector:
+    app: phone-validator-frontend
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: phone-validator-frontend-external
   labels:
     app: phone-validator-frontend
 spec:
