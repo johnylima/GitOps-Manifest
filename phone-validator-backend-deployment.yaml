@@ -4,6 +4,7 @@ metadata:
   name: phone-validator-backend
   labels:
     app: phone-validator-backend
+    product: phone-validator
 spec:
   replicas: 3
   selector:
@@ -18,9 +19,10 @@ spec:
     metadata:
       labels:
         app: phone-validator-backend
+        product: phone-validator
     spec:
       containers:
-      - image: johnylima/phone-validator-backend-2:8
+      - image: johnylima/phone-validator-backend-2:14
         name: phone-validator-backend
         resources:
           requests:
@@ -35,13 +37,42 @@ spec:
               hostPort: 8080
 
 status: {}
+
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
-  name: lb-phone-validator-backend
+  name: phone-validator-backend-service
   labels:
     app: phone-validator-backend
+    product: phone-validator
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8080
+  - name: https
+    port: 443
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: phone-validator-backend
+
+---
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: phone-validator-backend-external
+  annotations:
+        service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+  labels:
+    app: phone-validator-backend
+    product: phone-validator
 spec:
   type: LoadBalancer
   ports:
