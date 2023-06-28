@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phone-validator-frontend-deployment
+  labels:
+    app: phone-validator-frontend
+    product: phone-validator
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: phone-validator-frontend
+  strategy: 
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 0
+        maxUnavailable: 50%
+  template:
+    metadata:
+      labels:
+        app: phone-validator-frontend
+        product: phone-validator
+    spec:
+      containers:
+      - image: johnylima/phone-validator-frontend-2:15
+        name: phone-validator-frontend
+        ports:
+            - name: frontend-port
+              containerPort: 8081
+              hostPort: 8081
+        env:
+        - name: PORT
+          value: "8081"            
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi
+
+status: {}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: phone-validator-frontend-service
+  labels:
+    app: phone-validator-frontend
+    product: phone-validator
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8081
+  - name: https
+    port: 443
+    protocol: TCP
+    targetPort: 8081
+  selector:
+    app: phone-validator-frontend
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: phone-validator-frontend-loadbalancer
+  labels:
+    app: phone-validator-frontend
+    product: phone-validator
+spec:
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8081
+  - name: https
+    port: 443
+    protocol: TCP
+    targetPort: 8081
+  selector:
+    app: phone-validator-frontend
