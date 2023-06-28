@@ -58,15 +58,12 @@ spec:
     port: 80
     protocol: TCP
     targetPort: 8081
-  - name: https
-    port: 443
-    protocol: TCP
-    targetPort: 8081
   selector:
     app: phone-validator-frontend
 
 ---
 
+# https://github.com/kubernetes-sigs/aws-load-balancer-controller/blob/main/docs/guide/ingress/annotations.md
 
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -74,6 +71,11 @@ metadata:
   name: phone-validator-frontend-ingress
   annotations:
     alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/actions.response-503: >
+      {"type":"fixed-response","fixedResponseConfig":{"contentType":"text/plain","statusCode":"503","messageBody":"503 error text"}}
+    alb.ingress.kubernetes.io/actions.redirect-to-jumia: >
+      {"type":"redirect","redirectConfig":{"host":"group.jumia.com","path":"/about/","port":"443","protocol":"HTTPS","query":"k=v","statusCode":"HTTP_302"}}
   labels:
     app: phone-validator-frontend
     product: phone-validator
@@ -82,14 +84,35 @@ spec:
   rules:
     - http:
         paths:
-          - path: /
+          - path: /503
+            pathType: Exact
+            backend:
+              service:
+                name: response-503
+                port:
+                  name: use-annotation
+          - path: /jumia
+            pathType: Exact
+            backend:
+              service:
+                name: redirect-to-jumia
+                port:
+                  name: use-annotation
+          - path: /backend/api/v1/customers
+            pathType: Prefix
+            backend:
+              service:
+                name: phone-validator-backend-service
+                port:
+                  number: 80
+          - path: /frontend/v1
             pathType: Prefix
             backend:
               service:
                 name: phone-validator-frontend-service
                 port:
                   number: 80
-          - path: /frontend
+          - path: /
             pathType: Prefix
             backend:
               service:

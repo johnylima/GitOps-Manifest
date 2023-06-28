@@ -24,7 +24,6 @@ spec:
       containers:
       - image: johnylima/phone-validator-frontend-2:15
         name: phone-validator-frontend
-        imagePullPolicy: Always
         ports:
             - name: frontend-port
               containerPort: 8081
@@ -67,32 +66,23 @@ spec:
 
 ---
 
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: v1
+kind: Service
 metadata:
-  name: phone-validator-frontend-ingress
-  annotations:
-    alb.ingress.kubernetes.io/scheme: internet-facing
+  name: phone-validator-frontend-loadbalancer
   labels:
     app: phone-validator-frontend
     product: phone-validator
 spec:
-  ingressClassName: alb
-  rules:
-    - http:
-        paths:
-          - path: /*
-            pathType: Prefix
-            backend:
-              service:
-                name: phone-validator-frontend-service
-                port:
-                  number: 80
-          - path: /frontend
-            pathType: Prefix
-            backend:
-              service:
-                name: phone-validator-frontend-service
-                port:
-                  number: 80
-
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8081
+  - name: https
+    port: 443
+    protocol: TCP
+    targetPort: 8081
+  selector:
+    app: phone-validator-frontend
