@@ -12,7 +12,7 @@ spec:
     - dns01:
         route53:
           hostedZoneID: XXXXXXXXXXXXXXXXXXXX
-          region: us-east-2
+          region: eu-west-3
       selector:
         dnsZones:
         - "lab.example.com"

@@ -5,11 +5,14 @@ metadata:
   labels:
     app: phone-validator-frontend
     product: phone-validator
+    environment: dev
 spec:
   replicas: 3
   selector:
     matchLabels:
       app: phone-validator-frontend
+      product: phone-validator
+      environment: dev
   strategy: 
       type: RollingUpdate
       rollingUpdate:
@@ -20,9 +23,10 @@ spec:
       labels:
         app: phone-validator-frontend
         product: phone-validator
+        environment: dev
     spec:
       containers:
-      - image: johnylima/phone-validator-frontend-2:15
+      - image: johnylima/phone-validator-frontend:15
         name: phone-validator-frontend
         imagePullPolicy: Always
         ports:
@@ -51,13 +55,15 @@ metadata:
   labels:
     app: phone-validator-frontend
     product: phone-validator
+    environment: dev
 spec:
   type: NodePort
   ports:
   - name: http
     port: 80
-    protocol: TCP
     targetPort: 8081
+    nodePort: 32000
+    protocol: TCP
   selector:
     app: phone-validator-frontend
 
@@ -79,6 +85,7 @@ metadata:
   labels:
     app: phone-validator-frontend
     product: phone-validator
+    environment: dev
 spec:
   ingressClassName: alb
   rules:

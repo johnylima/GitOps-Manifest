@@ -5,11 +5,14 @@ metadata:
   labels:
     app: phone-validator-frontend
     product: phone-validator
+    environment: dev
 spec:
   replicas: 3
   selector:
     matchLabels:
       app: phone-validator-frontend
+      product: phone-validator
+      environment: dev
   strategy: 
       type: RollingUpdate
       rollingUpdate:
@@ -20,10 +23,12 @@ spec:
       labels:
         app: phone-validator-frontend
         product: phone-validator
+        environment: dev
     spec:
       containers:
       - image: johnylima/phone-validator-frontend:15
         name: phone-validator-frontend
+        imagePullPolicy: Always
         ports:
             - name: frontend-port
               containerPort: 8081
@@ -50,39 +55,46 @@ metadata:
   labels:
     app: phone-validator-frontend
     product: phone-validator
+    environment: dev
 spec:
   type: NodePort
   ports:
   - name: http
     port: 80
-    protocol: TCP
     targetPort: 8081
-  - name: https
-    port: 443
+    nodePort: 32000
     protocol: TCP
-    targetPort: 8081
   selector:
     app: phone-validator-frontend
 
 ---
 
-apiVersion: v1
-kind: Service
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
-  name: phone-validator-frontend-loadbalancer
+  name: phone-validator-frontend-ingress
+  annotations:
+   kubernetes.io/ingress.class: nginx
+   #nginx.ingress.kubernetes.io/backend-protocol: HTTPS 
+   #cert-manager.io/cluster-issuer: letsencrypt-prod
   labels:
     app: phone-validator-frontend
     product: phone-validator
+    environment: dev
 spec:
-  type: LoadBalancer
-  ports:
-  - name: http
-    port: 80
-    protocol: TCP
-    targetPort: 8081
-  - name: https
-    port: 443
-    protocol: TCP
-    targetPort: 8081
-  selector:
-    app: phone-validator-frontend
+  ingressClassName: nginx
+  rules:
+    - host: phonevalidator.jl.com
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: phone-validator-frontend-service
+                port:
+                  number: 80
+  # tls:
+  #   - hosts:
+  #       - phonevalidator.jl.com
+  #     secretName: phonevalidator.jl.com-tls
